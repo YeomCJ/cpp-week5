@@ -13,7 +13,7 @@ Tetromino::Tetromino(std::string name, int size, std::string shape)
 {
     name_ = name;
     size_ = size;
-
+    
     int a = 0;
     for (int i = 0; i < size; i++)
     {
@@ -155,13 +155,12 @@ Tetromino Tetromino::rotatedCCW()
 // 화면의 x, y 위치에 s 문자열로  테트로미노를 그린다
 void Tetromino::drawAt(std::string s, int x, int y)
 {
-    draw(x, y, s);
+    for (int i = 0; i < size_; i++)
+    {
+        for (int j = 0; j < size_; j++)
+        {
+            if (shape_[i][j] == true)
+                draw(x + j, y + i, s);
+        }
+    }
 }
-
-Tetromino T("T", 3, "XOXOOOXXX");
-Tetromino I("I", 4, "XXXXOOOOXXXXXXXX");
-Tetromino O("O", 2, "OOOO");
-Tetromino S("S", 3, "XOOOOXXXX");
-Tetromino Z("Z", 3, "OOXXOOXXX");
-Tetromino J("J", 3, "OXXOOOXXX");
-Tetromino L("L", 3, "XXOOOOXXX");

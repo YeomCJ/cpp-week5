@@ -23,7 +23,6 @@ class Tetromino {
   // 테트로미노의 사이즈
   int size_;
 
-  int x,y;
 
 public:
   // 사이즈와 shape 문자열을 통해 생성한다.

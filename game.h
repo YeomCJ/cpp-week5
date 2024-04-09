@@ -17,6 +17,17 @@ private:
   bool board_[BOARD_WIDTH][BOARD_HEIGHT];
 
   int score;
+  int x,y;
+  int check = 0;
+
+  Tetromino *currentTetromino;
+  Tetromino *nextTetromino;
+  Tetromino *holdTetromino;
+
+
+  Tetromino *ar[7];
+
+
 
 public:
   // 게임의 한 프레임을 처리한다.
