@@ -18,7 +18,7 @@ void Game::update()
   if (console::key(Key::K_UP)) // 하드드롭
   {
     for (int i = 0; i < 20; i++)
-      if (board_[i][x] == true)
+      if (board_[x][i] == true)
       {
       }
   }
@@ -42,8 +42,6 @@ void Game::update()
   {
     for (int i = 0; i < 7; i++)
       delete ar[i];
-    delete[] ar;
-    delete[] ar;
     delete holdTetromino;
     delete nextTetromino;
     delete currentTetromino;
@@ -84,10 +82,10 @@ void Game::update()
       {
         if (board_[x + (s - t + 1)][y + k] == true)
         {
-          for (int i = s - 1; i >= 0; i++)
-            for (int j = s - 1; j >= 0; j++)
+          for (int i = s - 1; i >= 0; i--)
+            for (int j = s - 1; j >= 0; j--)
               if (currentTetromino->check(i, j))
-                board_[x + i][y + i] = true;
+                board_[x + i][y + j] = true;
           currentTetromino = nextTetromino;
           nextTetromino = ar[rand() % 7];
         }
@@ -96,25 +94,25 @@ void Game::update()
   }
 
   // 한 줄 채우면 ~
-  for (int i = BOARD_HEIGHT - 1; i >= 0; i--)
+  for (int i = BOARD_WIDTH - 1; i >= 0; i--)
   {
     int count = 0;
-    for (int j = 0; j < BOARD_WIDTH; j++)
+    for (int j = 0; j < BOARD_HEIGHT; j++)
       if (board_[i][j] == true)
         count++;
 
     if (count == 10)
     {
-      for (int k = 0; k < BOARD_WIDTH; k++)
+      for (int k = 0; k < BOARD_HEIGHT; k++)
         board_[i][k] = false;
 
       for (int a = i; a > 0; a--)
       {
-        for (int b = 0; b < BOARD_WIDTH; b++)
+        for (int b = 0; b < BOARD_HEIGHT; b++)
           board_[a][b] = board_[a - 1][b];
       }
 
-      for (int k = 0; k < BOARD_WIDTH; k++)
+      for (int k = 0; k < BOARD_HEIGHT; k++)
         board_[0][k] = false;
     }
 
@@ -137,8 +135,8 @@ void Game::draw()
   nextTetromino->drawAt(BLOCK_STRING, 15, 1);
   holdTetromino->drawAt(BLOCK_STRING, 24, 1);
 
-  for (int i = 0; i < BOARD_HEIGHT; i++)
-    for (int j = 0; j < BOARD_WIDTH; j++)
+  for (int i = 0; i < BOARD_WIDTH; i++)
+    for (int j = 0; j < BOARD_HEIGHT; j++)
       if (board_[i][j] == true)
         console::draw(i,j,BLOCK_STRING);
 
