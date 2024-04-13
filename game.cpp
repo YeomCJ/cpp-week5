@@ -20,6 +20,8 @@ void Game::update()
     for (int i = 0; i < 20; i++)
       if (board_[x][i] == true)
       {
+        y = i + 1;
+        break;
       }
   }
   else if (console::key(Key::K_DOWN))
@@ -38,7 +40,7 @@ void Game::update()
   else if (console::key(Key::K_ENTER))
   { // ??
   }
-  else if (console::key(Key::K_ESC)) // 정료
+  else if (console::key(Key::K_ESC)) // 종료
   {
     for (int i = 0; i < 7; i++)
       delete ar[i];
@@ -74,22 +76,32 @@ void Game::update()
     currentTetromino->rotatedCW();
   }
 
-  for (int k = 0; k < s; k++)
+  // 쌓기
+  if (board_[x][y - 1] == true)
   {
-    for (int t = 1; t < s; t++)
+    for (int k = 0; k < s; k++)
     {
-      if (currentTetromino->check(s - t, k))
+      int z = 0;
+      for (int t = 1; t < s; t++)
       {
-        if (board_[x + (s - t + 1)][y + k] == true)
-        {
-          for (int i = s - 1; i >= 0; i--)
-            for (int j = s - 1; j >= 0; j--)
-              if (currentTetromino->check(i, j))
-                board_[x + i][y + j] = true;
-          currentTetromino = nextTetromino;
-          nextTetromino = ar[rand() % 7];
-        }
+        if (currentTetromino->check(s - t, k))
+          if (board_[x + (s - t + 1)][y + k] == true)
+          {
+            for (int i = s - 1; i >= 0; i--)
+              for (int j = s - 1; j >= 0; j--)
+                if (currentTetromino->check(i, j))
+                  board_[x + i][y + j] = true;
+
+            currentTetromino = nextTetromino;
+            nextTetromino = ar[rand() % 7];
+            check = 0;
+            z = -1;
+            break;
+          }
+          
       }
+      if (z == -1)
+        break;
     }
   }
 
@@ -124,6 +136,17 @@ void Game::update()
 // 게임 화면을 그린다.
 void Game::draw()
 {
+  // 시간 출력
+  static auto lastTime = std::chrono::steady_clock::now();
+
+  auto currentTime = std::chrono::steady_clock::now();
+
+  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastTime);
+
+  console::draw(4, 23, to_string(duration.count()));
+
+  lastTime = currentTime;
+
   console::drawBox(0, 0, 12, 22);
   console::drawBox(14, 0, 20, 8);
   console::drawBox(22, 0, 28, 8);
@@ -135,17 +158,26 @@ void Game::draw()
   nextTetromino->drawAt(BLOCK_STRING, 15, 1);
   holdTetromino->drawAt(BLOCK_STRING, 24, 1);
 
+  for (int i = 0; i < 20; i++)
+    if (board_[x][i] == true)
+    {
+      currentTetromino->drawAt(SHADOW_STRING, x, i + 1);
+      break;
+    }
+
   for (int i = 0; i < BOARD_WIDTH; i++)
     for (int j = 0; j < BOARD_HEIGHT; j++)
       if (board_[i][j] == true)
-        console::draw(i,j,BLOCK_STRING);
-
-  // 시간
+        console::draw(i, j, BLOCK_STRING);
 }
 
 // 게임 루프가 종료되어야 하는지 여부를 반환한다.
 bool Game::shouldExit()
 {
+  if (board_[4][0] == true || board_[5][0])
+    return true;
+
+  return false;
 }
 
 Game::Game()

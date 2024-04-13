@@ -28,7 +28,7 @@ Tetromino::Tetromino(std::string name, int size, std::string shape)
     }
     // 회전되지 않은 원래 테트로미노 객체를 저장하는 포인터
     // Tetromino *original_;
-    original_ = new Tetromino(name_, size_, shape);
+    original_ = this;
 }
 
 // 시계 방향으로 회전한 모습의 테트로미노 객체를 반환한다.
