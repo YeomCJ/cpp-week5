@@ -1,13 +1,10 @@
 #include "game.h"
 #include "console/console.h"
-#include "tetromino.h"
 #include <iostream>
 #include <random>
-#include <vector>
 #include <string>
 #include <chrono>
 
-using namespace std;
 using namespace console;
 
 // 게임의 한 프레임을 처리
@@ -44,6 +41,7 @@ void Game::update()
   {
     for (int i = 0; i < 7; i++)
       delete ar[i];
+
     delete holdTetromino;
     delete nextTetromino;
     delete currentTetromino;
@@ -98,7 +96,6 @@ void Game::update()
             z = -1;
             break;
           }
-          
       }
       if (z == -1)
         break;
@@ -106,30 +103,32 @@ void Game::update()
   }
 
   // 한 줄 채우면 ~
-  for (int i = BOARD_WIDTH - 1; i >= 0; i--)
+  for (int i = BOARD_HEIGHT - 1; i >= 0; i--)
   {
     int count = 0;
-    for (int j = 0; j < BOARD_HEIGHT; j++)
-      if (board_[i][j] == true)
+    for (int j = 0; j < BOARD_WIDTH; j++)
+      if (board_[j][i] == true)
         count++;
 
     if (count == 10)
     {
-      for (int k = 0; k < BOARD_HEIGHT; k++)
-        board_[i][k] = false;
+      for (int k = 0; k < BOARD_WIDTH; k++)
+        board_[k][i] = false;
+      score--;
 
+      // 칸 내리기
       for (int a = i; a > 0; a--)
       {
-        for (int b = 0; b < BOARD_HEIGHT; b++)
-          board_[a][b] = board_[a - 1][b];
+        for (int b = 0; b < BOARD_WIDTH; b++)
+          board_[b][a] = board_[b][a - 1];
       }
 
-      for (int k = 0; k < BOARD_HEIGHT; k++)
-        board_[0][k] = false;
+      // 맨 윗줄
+      for (int k = 0; k < BOARD_WIDTH; k++)
+        board_[k][0] = false;
     }
 
-    count = 0;
-    score--;
+    
   }
 }
 
@@ -142,8 +141,15 @@ void Game::draw()
   auto currentTime = std::chrono::steady_clock::now();
 
   auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastTime);
+  auto minutes = std::chrono::duration_cast<std::chrono::minutes>(duration);
+  duration -= minutes;
+  auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration);
+  duration -= seconds;
+  auto milliseconds = duration;
 
-  console::draw(4, 23, to_string(duration.count()));
+  console::draw(4, 23, std::to_string(minutes.count()) + ":" 
+                      + std::to_string(seconds.count()) + ":" 
+                      + std::to_string(milliseconds.count()));
 
   lastTime = currentTime;
 
@@ -169,13 +175,30 @@ void Game::draw()
     for (int j = 0; j < BOARD_HEIGHT; j++)
       if (board_[i][j] == true)
         console::draw(i, j, BLOCK_STRING);
+
+
+  if (score == 0)
+  {
+    console::draw(4, 10, "You Win");
+    console::draw(4, 11, std::to_string(minutes.count()) + ":" 
+                          + std::to_string(seconds.count()) + ":" 
+                          + std::to_string(milliseconds.count()));
+  }
 }
 
 // 게임 루프가 종료되어야 하는지 여부를 반환한다.
 bool Game::shouldExit()
 {
   if (board_[4][0] == true || board_[5][0])
+  {
+    console::draw(4, 10, "You Lost");
     return true;
+  }
+
+  if (score == 0)
+  {
+    return true;
+  }
 
   return false;
 }
@@ -192,14 +215,14 @@ Game::Game()
       board_[x][y] = false;
     }
   }
-
-  ar[0] = new Tetromino("T", 3, "XOXOOOXXX");
-  ar[1] = new Tetromino("I", 4, "XXXXOOOOXXXXXXXX");
-  ar[2] = new Tetromino("O", 2, "OOOO");
-  ar[3] = new Tetromino("S", 3, "XOOOOXXXX");
-  ar[4] = new Tetromino("Z", 3, "OOXXOOXXX");
-  ar[5] = new Tetromino("J", 3, "OXXOOOXXX");
-  ar[6] = new Tetromino("L", 3, "XXOOOOXXX");
+  
+  *ar[0] = Tetromino::T;
+  *ar[1] = Tetromino::I;
+  *ar[2] = Tetromino::O;
+  *ar[3] = Tetromino::S;
+  *ar[4] = Tetromino::Z;
+  *ar[5] = Tetromino::J;
+  *ar[6] = Tetromino::L;
 
   currentTetromino = ar[rand() % 7];
   nextTetromino = ar[rand() % 7];

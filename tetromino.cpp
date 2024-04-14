@@ -1,7 +1,6 @@
 #include "tetromino.h"
 #include "console/console.h"
 
-using namespace std;
 using namespace console;
 
 // 사이즈와 shape 문자열을 통해 생성한다.
@@ -13,15 +12,17 @@ Tetromino::Tetromino(std::string name, int size, std::string shape)
 {
     name_ = name;
     size_ = size;
-    
+
+    for (int i = 0; i < MAX_SIZE; i++)
+        for (int j = 0; j < MAX_SIZE; j++)
+            shape_[i][j] = false;
+
     int a = 0;
     for (int i = 0; i < size; i++)
     {
         for (int j = 0; j < size; j++)
         {
-            if (shape[a] == 'X')
-                shape_[i][j] = false;
-            else
+            if (shape[a] == 'O')
                 shape_[i][j] = true;
             a++;
         }
@@ -93,7 +94,7 @@ Tetromino Tetromino::rotatedCW()
 
 // 반시계 방향으로 회전한 모습의 테트로미노 객체를 반환한다.
 Tetromino Tetromino::rotatedCCW()
-{   
+{
     // I 블록을 제외한 나머지 블록
     if (size_ != 4)
     {
@@ -164,3 +165,11 @@ void Tetromino::drawAt(std::string s, int x, int y)
         }
     }
 }
+
+Tetromino Tetromino::T("T", 3, "XOXOOOXXX");
+Tetromino Tetromino::I("I", 4, "XXXXOOOOXXXXXXXX");
+Tetromino Tetromino::O("O", 2, "OOOO");
+Tetromino Tetromino::S("S", 3, "XOOOOXXXX");
+Tetromino Tetromino::Z("Z", 3, "OOXXOOXXX");
+Tetromino Tetromino::J("J", 3, "OXXOOOXXX");
+Tetromino Tetromino::L("L", 3, "XXOOOOXXX");
