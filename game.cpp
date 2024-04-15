@@ -7,75 +7,111 @@
 
 using namespace console;
 
+bool Game::leftWall() {
+  int s = currentTetromino->size();
+  if (s - x == 0) {
+    for (int j = 0; j < s; j++) {
+      if (currentTetromino->check(j,0))
+        return false;
+    }
+  }
+  return true;
+}
+
+bool Game::rightWall() {
+  int s = currentTetromino->size();
+  for (int j = 0; j < s; j++) {
+      if (currentTetromino->check(j,s - 1))
+        if (x + s == 10) {
+          return false;
+        }
+  }
+  for (int j = 0; j < s; j++) {
+   if (currentTetromino->check(j,s-2))
+        if (x + s - 1 == 10)
+          return false;
+  }
+  return true;
+}
+
 // 게임의 한 프레임을 처리
 void Game::update()
 {
   int s = currentTetromino->size();
 
   // 키 입력에 따른 처리
-  if (true)
+  if (console::key(Key::K_UP)) // 하드드롭
   {
-    if (console::key(Key::K_UP)) // 하드드롭
-    {
-      for (int i = 0; i < 20; i++)
-        if (board_[x][i] == true)
-        {
-          y = i + 1;
-          break;
-        }
-    }
-    else if (console::key(Key::K_DOWN))
-    {
-      y++;
-    }
-    else if (console::key(Key::K_LEFT))
-    {
+    
+  }
+  else if (console::key(Key::K_DOWN))
+  {
+    y++;
+  }
+  else if (console::key(Key::K_LEFT))
+  {
+    if (leftWall())
       x--;
-    }
-    else if (console::key(Key::K_RIGHT))
-    {
+  }
+  else if (console::key(Key::K_RIGHT))
+  {
+    if (rightWall())
       x++;
-    }
+  }
 
-    else if (console::key(Key::K_ENTER))
-    { // ??
-    }
-    else if (console::key(Key::K_ESC)) // 종료
-    {
-      for (int i = 0; i < 7; i++)
-        delete ar[i];
+  else if (console::key(Key::K_ESC)) // 종료
+  {
+    for (int i = 0; i < 7; i++)
+      delete ar[i];
 
-      delete holdTetromino;
-      delete nextTetromino;
-      delete currentTetromino;
-      exit(0);
-    }
-    else if (console::key(Key::K_SPACE)) // 홀드
+    delete holdTetromino;
+    delete nextTetromino;
+    delete currentTetromino;
+    exit(0);
+  }
+  
+  else if (console::key(Key::K_SPACE)) // 홀드
+  {
+    if (check == 0)
     {
-      if (check == 0)
-      {
-        if (holdTetromino == nullptr)
-          holdTetromino = currentTetromino->original();
-        else
-        {
-          Tetromino *tmp = holdTetromino;
-          holdTetromino = currentTetromino->original();
-          currentTetromino = tmp;
-          delete tmp;
-        }
-        x = 4;
-        y = 0;
-        check++;
+      if (holdTetromino == nullptr) {
+        holdTetromino = currentTetromino->original();
+        delete currentTetromino;
+        currentTetromino = nextTetromino;
+        delete nextTetromino;
+        nextTetromino = ar[rand() % 7];
       }
+      else
+      {
+        Tetromino *tmp = holdTetromino;
+        delete holdTetromino;
+        holdTetromino = currentTetromino->original();
+        delete currentTetromino;
+        currentTetromino = tmp;
+        delete tmp;
+      }
+      x = 4;
+      y = 0;
+      check++;
     }
-    else if (console::key(Key::K_Z)) // 반시계 회전
-    {
-      currentTetromino->rotatedCCW();
-    }
-    else if (console::key(Key::K_X)) // 시계 회전
-    {
-      currentTetromino->rotatedCW();
-    }
+  }
+  else if (console::key(Key::K_Z)) // 반시계 회전
+  {
+    currentTetromino->rotatedCCW();
+  }
+  else if (console::key(Key::K_X)) // 시계 회전
+  {
+    currentTetromino->rotatedCW();
+  }
+
+
+
+  // 프레임 속도 맞추기
+  moveTimer--;
+  if (moveTimer == 0)
+  {
+    moveTimer = DROP_DELAY;
+    y++;
   }
 
   // 블록 위에 쌓기
@@ -94,7 +130,9 @@ void Game::update()
                 if (currentTetromino->check(i, j))
                   board_[x + i][y + j] = true;
 
+            delete currentTetromino;
             currentTetromino = nextTetromino;
+            delete nextTetromino;
             nextTetromino = ar[rand() % 7];
             check = 0;
             z = -1;
@@ -105,23 +143,36 @@ void Game::update()
         break;
     }
   }
-  // 맨 바닥에 쌓기
-  else
-  { 
-    for (int k = s - 1; k >= 0; k--)
-    {
-      int z = 0; // for문 탈출용
-      for (int t = 1; t <= s; t++)
-      {
-        if (currentTetromino->check(s - t, k))
-        {
-            for (int i = s - 1; i >= 0; i--)
-              for (int j = s - 1; j >= 0; j--)
-                if (currentTetromino->check(i, j))
-                  board_[x + i][y + j] = true;
 
+  for (int i = 0; i < 4; i++)
+  {
+    int a = 0;
+    for (int j = 3; j >= 0; j--)
+    {
+      if (currentTetromino->check(i, j) == true && (board_[x + i][y + j] == true || y + j == 20))
+      {
+        floor = true;
+        for (int k = 0; k < 4; k++)
+        {
+          for (int m = 0; m < 4; m++)
+          {
+            if (currentTetromino->check(k, m))
+            {
+              board_[x + k][y + m - 1] = true;
+            }
+          }
         }
+        delete currentTetromino;
+        currentTetromino = nextTetromino;
+        delete nextTetromino;
+        nextTetromino = ar[rand() % 7];
+        x = 4;
+        y = 0;
+        check = 0;
+        a = 1;
+        break;
       }
+      if (a == 1) break;
     }
   }
 
@@ -172,17 +223,17 @@ void Game::draw()
 
   lastTime = currentTime;
 
-  console::drawBox(0, 0, 12, 22);
-  console::drawBox(14, 0, 20, 8);
-  console::drawBox(22, 0, 28, 8);
-  console::draw(15, 0, "Next");
-  console::draw(23, 0, "Hold");
+  console::drawBox(0, 0, 11, 21);
+  console::drawBox(12, 0, 17, 6);
+  console::drawBox(18, 0, 23, 6);
+  console::draw(13, 0, "Next");
+  console::draw(19, 0, "Hold");
   console::draw(BOARD_WIDTH / 2, BOARD_HEIGHT + 2, score + "lines left");
 
-  currentTetromino->drawAt(BLOCK_STRING, x, y++);
-  nextTetromino->drawAt(BLOCK_STRING, 15, 1);
+  currentTetromino->drawAt(BLOCK_STRING, x, y);
+  nextTetromino->drawAt(BLOCK_STRING, 13, 1);
   if (holdTetromino != nullptr)
-    holdTetromino->drawAt(BLOCK_STRING, 24, 1);
+    holdTetromino->drawAt(BLOCK_STRING, 19, 1);
 
   for (int i = 0; i < 20; i++)
     if (board_[x][i] == true)
@@ -206,11 +257,6 @@ void Game::draw()
 // 게임 루프가 종료되어야 하는지 여부를 반환한다.
 bool Game::shouldExit()
 {
-  if (board_[4][0] == true || board_[5][0])
-  {
-    console::draw(4, 10, "You Lost");
-    return true;
-  }
 
   if (score == 0)
   {

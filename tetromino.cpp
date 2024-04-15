@@ -36,7 +36,7 @@ Tetromino::Tetromino(std::string name, int size, std::string shape)
 Tetromino Tetromino::rotatedCW()
 {
     // I 블록을 제외한 나머지 블록
-    if (size_ != 4)
+    if (size_ == 3)
     {
         bool tmp1 = shape_[0][2], tmp2 = shape_[0][1];
 
@@ -49,7 +49,7 @@ Tetromino Tetromino::rotatedCW()
         shape_[2][2] = tmp1;
         shape_[1][2] = tmp2;
     }
-    else
+    else if (size_ == 4)
     {
         // I 가로
         if (shape_[0][1] == false && shape_[0][2] == false)
@@ -96,7 +96,7 @@ Tetromino Tetromino::rotatedCW()
 Tetromino Tetromino::rotatedCCW()
 {
     // I 블록을 제외한 나머지 블록
-    if (size_ != 4)
+    if (size_ == 3)
     {
         bool tmp1 = shape_[0][0], tmp2 = shape_[0][1];
 
@@ -110,7 +110,7 @@ Tetromino Tetromino::rotatedCCW()
         shape_[2][1] = shape_[1][0];
         shape_[1][0] = tmp2;
     }
-    else
+    else if (size_ == 4)
     {
         // I 가로
         if (shape_[0][1] == false && shape_[0][2] == false)
