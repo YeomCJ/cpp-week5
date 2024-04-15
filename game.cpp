@@ -12,78 +12,82 @@ void Game::update()
 {
   int s = currentTetromino->size();
 
-  if (console::key(Key::K_UP)) // 하드드롭
+  // 키 입력에 따른 처리
+  if (true)
   {
-    for (int i = 0; i < 20; i++)
-      if (board_[x][i] == true)
-      {
-        y = i + 1;
-        break;
-      }
-  }
-  else if (console::key(Key::K_DOWN))
-  {
-    y++;
-  }
-  else if (console::key(Key::K_LEFT))
-  {
-    x--;
-  }
-  else if (console::key(Key::K_RIGHT))
-  {
-    x++;
-  }
-
-  else if (console::key(Key::K_ENTER))
-  { // ??
-  }
-  else if (console::key(Key::K_ESC)) // 종료
-  {
-    for (int i = 0; i < 7; i++)
-      delete ar[i];
-
-    delete holdTetromino;
-    delete nextTetromino;
-    delete currentTetromino;
-    exit(0);
-  }
-  else if (console::key(Key::K_SPACE)) // 홀드
-  {
-    if (check == 0)
+    if (console::key(Key::K_UP)) // 하드드롭
     {
-      if (holdTetromino == nullptr)
-        holdTetromino = currentTetromino->original();
-      else
+      for (int i = 0; i < 20; i++)
+        if (board_[x][i] == true)
+        {
+          y = i + 1;
+          break;
+        }
+    }
+    else if (console::key(Key::K_DOWN))
+    {
+      y++;
+    }
+    else if (console::key(Key::K_LEFT))
+    {
+      x--;
+    }
+    else if (console::key(Key::K_RIGHT))
+    {
+      x++;
+    }
+
+    else if (console::key(Key::K_ENTER))
+    { // ??
+    }
+    else if (console::key(Key::K_ESC)) // 종료
+    {
+      for (int i = 0; i < 7; i++)
+        delete ar[i];
+
+      delete holdTetromino;
+      delete nextTetromino;
+      delete currentTetromino;
+      exit(0);
+    }
+    else if (console::key(Key::K_SPACE)) // 홀드
+    {
+      if (check == 0)
       {
-        Tetromino *tmp = holdTetromino;
-        holdTetromino = currentTetromino->original();
-        currentTetromino = tmp;
-        delete tmp;
+        if (holdTetromino == nullptr)
+          holdTetromino = currentTetromino->original();
+        else
+        {
+          Tetromino *tmp = holdTetromino;
+          holdTetromino = currentTetromino->original();
+          currentTetromino = tmp;
+          delete tmp;
+        }
+        x = 4;
+        y = 0;
+        check++;
       }
-      x = 4;
-      y = 0;
-      check++;
+    }
+    else if (console::key(Key::K_Z)) // 반시계 회전
+    {
+      currentTetromino->rotatedCCW();
+    }
+    else if (console::key(Key::K_X)) // 시계 회전
+    {
+      currentTetromino->rotatedCW();
     }
   }
-  else if (console::key(Key::K_Z)) // 반시계 회전
-  {
-    currentTetromino->rotatedCCW();
-  }
-  else if (console::key(Key::K_X)) // 시계 회전
-  {
-    currentTetromino->rotatedCW();
-  }
 
-  // 쌓기
+  // 블록 위에 쌓기
   if (board_[x][y - 1] == true)
   {
-    for (int k = 0; k < s; k++)
+    for (int k = s - 1; k >= 0; k--)
     {
-      int z = 0;
-      for (int t = 1; t < s; t++)
+      int z = 0; // for문 탈출용
+      for (int t = 1; t <= s; t++)
       {
         if (currentTetromino->check(s - t, k))
-          if (board_[x + (s - t + 1)][y + k] == true)
+          if (board_[x + (s - t)][y + k] == true)
           {
             for (int i = s - 1; i >= 0; i--)
               for (int j = s - 1; j >= 0; j--)
@@ -99,6 +103,25 @@ void Game::update()
       }
       if (z == -1)
         break;
+    }
+  }
+  // 맨 바닥에 쌓기
+  else
+  { 
+    for (int k = s - 1; k >= 0; k--)
+    {
+      int z = 0; // for문 탈출용
+      for (int t = 1; t <= s; t++)
+      {
+        if (currentTetromino->check(s - t, k))
+        {
+            for (int i = s - 1; i >= 0; i--)
+              for (int j = s - 1; j >= 0; j--)
+                if (currentTetromino->check(i, j))
+                  board_[x + i][y + j] = true;
+
+        }
+      }
     }
   }
 
@@ -127,8 +150,6 @@ void Game::update()
       for (int k = 0; k < BOARD_WIDTH; k++)
         board_[k][0] = false;
     }
-
-    
   }
 }
 
@@ -147,9 +168,7 @@ void Game::draw()
   duration -= seconds;
   auto milliseconds = duration;
 
-  console::draw(4, 23, std::to_string(minutes.count()) + ":" 
-                      + std::to_string(seconds.count()) + ":" 
-                      + std::to_string(milliseconds.count()));
+  console::draw(4, 23, std::to_string(minutes.count()) + ":" + std::to_string(seconds.count()) + ":" + std::to_string(milliseconds.count()));
 
   lastTime = currentTime;
 
@@ -162,7 +181,8 @@ void Game::draw()
 
   currentTetromino->drawAt(BLOCK_STRING, x, y++);
   nextTetromino->drawAt(BLOCK_STRING, 15, 1);
-  holdTetromino->drawAt(BLOCK_STRING, 24, 1);
+  if (holdTetromino != nullptr)
+    holdTetromino->drawAt(BLOCK_STRING, 24, 1);
 
   for (int i = 0; i < 20; i++)
     if (board_[x][i] == true)
@@ -176,13 +196,10 @@ void Game::draw()
       if (board_[i][j] == true)
         console::draw(i, j, BLOCK_STRING);
 
-
   if (score == 0)
   {
     console::draw(4, 10, "You Win");
-    console::draw(4, 11, std::to_string(minutes.count()) + ":" 
-                          + std::to_string(seconds.count()) + ":" 
-                          + std::to_string(milliseconds.count()));
+    console::draw(4, 11, std::to_string(minutes.count()) + ":" + std::to_string(seconds.count()) + ":" + std::to_string(milliseconds.count()));
   }
 }
 
@@ -215,14 +232,14 @@ Game::Game()
       board_[x][y] = false;
     }
   }
-  
-  *ar[0] = Tetromino::T;
-  *ar[1] = Tetromino::I;
-  *ar[2] = Tetromino::O;
-  *ar[3] = Tetromino::S;
-  *ar[4] = Tetromino::Z;
-  *ar[5] = Tetromino::J;
-  *ar[6] = Tetromino::L;
+
+  ar[0] = new Tetromino("T", 3, "XOXOOOXXX");
+  ar[1] = new Tetromino("I", 4, "XXXXOOOOXXXXXXXX");
+  ar[2] = new Tetromino("O", 2, "OOOO");
+  ar[3] = new Tetromino("S", 3, "XOOOOXXXX");
+  ar[4] = new Tetromino("Z", 3, "OOXXOOXXX");
+  ar[5] = new Tetromino("J", 3, "OXXOOOXXX");
+  ar[6] = new Tetromino("L", 3, "XXOOOOXXX");
 
   currentTetromino = ar[rand() % 7];
   nextTetromino = ar[rand() % 7];
