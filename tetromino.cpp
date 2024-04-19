@@ -35,122 +35,126 @@ Tetromino::Tetromino(std::string name, int size, std::string shape)
 // 시계 방향으로 회전한 모습의 테트로미노 객체를 반환한다.
 Tetromino Tetromino::rotatedCW()
 {
+    Tetromino rotatedTetromino = (*this);
     // I 블록을 제외한 나머지 블록
     if (size_ == 3)
     {
-        bool tmp1 = shape_[0][2], tmp2 = shape_[0][1];
+        bool tmp1 = rotatedTetromino.shape_[0][2], tmp2 = rotatedTetromino.shape_[0][1];
 
-        shape_[0][2] = shape_[0][0];
-        shape_[0][1] = shape_[1][0];
-        shape_[0][0] = shape_[2][0];
-        shape_[1][0] = shape_[2][1];
-        shape_[2][0] = shape_[2][2];
-        shape_[2][1] = shape_[1][2];
-        shape_[2][2] = tmp1;
-        shape_[1][2] = tmp2;
+        rotatedTetromino.shape_[0][2] = rotatedTetromino.shape_[0][0];
+        rotatedTetromino.shape_[0][1] = rotatedTetromino.shape_[1][0];
+        rotatedTetromino.shape_[0][0] = rotatedTetromino.shape_[2][0];
+        rotatedTetromino.shape_[1][0] = rotatedTetromino.shape_[2][1];
+        rotatedTetromino.shape_[2][0] = rotatedTetromino.shape_[2][2];
+        rotatedTetromino.shape_[2][1] = rotatedTetromino.shape_[1][2];
+        rotatedTetromino.shape_[2][2] = tmp1;
+        rotatedTetromino.shape_[1][2] = tmp2;
     }
     else if (size_ == 4)
     {
         // I 가로
-        if (shape_[0][1] == false && shape_[0][2] == false)
+        if (rotatedTetromino.shape_[0][1] == false && rotatedTetromino.shape_[0][2] == false)
         {
             // 2번째 줄이 가로 "xxxxOOOOxxxxxxxx"
-            if (shape_[1][0] == true)
+            if (rotatedTetromino.shape_[1][0] == true)
             {
                 for (int i = 0; i < 4; i++)
-                    shape_[1][i] = false;
+                    rotatedTetromino.shape_[1][i] = false;
                 for (int i = 0; i < 4; i++)
-                    shape_[i][2] = true;
+                    rotatedTetromino.shape_[i][2] = true;
             }
             else
             {
                 for (int i = 0; i < 4; i++)
-                    shape_[2][i] = false;
+                    rotatedTetromino.shape_[2][i] = false;
                 for (int i = 0; i < 4; i++)
-                    shape_[i][1] = true;
+                    rotatedTetromino.shape_[i][1] = true;
             }
         }
         // 세로
         else
         {
             // 2번째 ~ "xOxxxOxxxOxxxOxx"
-            if (shape_[0][1] == true)
+            if (rotatedTetromino.shape_[0][1] == true)
             {
                 for (int i = 0; i < 4; i++)
-                    shape_[i][1] = false;
+                    rotatedTetromino.shape_[i][1] = false;
                 for (int i = 0; i < 4; i++)
-                    shape_[1][i] = true;
+                    rotatedTetromino.shape_[1][i] = true;
             }
             else
             {
                 for (int i = 0; i < 4; i++)
-                    shape_[i][2] = false;
+                    rotatedTetromino.shape_[i][2] = false;
                 for (int i = 0; i < 4; i++)
-                    shape_[2][i] = true;
+                    rotatedTetromino.shape_[2][i] = true;
             }
         }
     }
+    return rotatedTetromino;
 }
 
 // 반시계 방향으로 회전한 모습의 테트로미노 객체를 반환한다.
 Tetromino Tetromino::rotatedCCW()
 {
+    Tetromino rotatedTetromino = (*this);
     // I 블록을 제외한 나머지 블록
     if (size_ == 3)
     {
-        bool tmp1 = shape_[0][0], tmp2 = shape_[0][1];
+        bool tmp1 = rotatedTetromino.shape_[0][0], tmp2 = rotatedTetromino.shape_[0][1];
 
-        shape_[0][0] = shape_[0][2];
-        shape_[0][2] = shape_[2][2];
-        shape_[2][2] = shape_[2][0];
-        shape_[2][0] = tmp1;
+        rotatedTetromino.shape_[0][0] = rotatedTetromino.shape_[0][2];
+        rotatedTetromino.shape_[0][2] = rotatedTetromino.shape_[2][2];
+        rotatedTetromino.shape_[2][2] = rotatedTetromino.shape_[2][0];
+        rotatedTetromino.shape_[2][0] = tmp1;
 
-        shape_[0][1] = shape_[1][2];
-        shape_[1][2] = shape_[2][1];
-        shape_[2][1] = shape_[1][0];
-        shape_[1][0] = tmp2;
+        rotatedTetromino.shape_[0][1] = rotatedTetromino.shape_[1][2];
+        rotatedTetromino.shape_[1][2] = rotatedTetromino.shape_[2][1];
+        rotatedTetromino.shape_[2][1] = rotatedTetromino.shape_[1][0];
+        rotatedTetromino.shape_[1][0] = tmp2;
     }
     else if (size_ == 4)
     {
         // I 가로
-        if (shape_[0][1] == false && shape_[0][2] == false)
+        if (rotatedTetromino.shape_[0][1] == false && rotatedTetromino.shape_[0][2] == false)
         {
             // 2번째 줄이 가로 "xxxxOOOOxxxxxxxx"
-            if (shape_[1][0] == true)
+            if (rotatedTetromino.shape_[1][0] == true)
             {
                 for (int i = 0; i < 4; i++)
-                    shape_[1][i] = false;
+                    rotatedTetromino.shape_[1][i] = false;
                 for (int i = 0; i < 4; i++)
-                    shape_[i][1] = true;
+                    rotatedTetromino.shape_[i][1] = true;
             }
             else
             {
                 for (int i = 0; i < 4; i++)
-                    shape_[2][i] = false;
+                    rotatedTetromino.shape_[2][i] = false;
                 for (int i = 0; i < 4; i++)
-                    shape_[i][2] = true;
+                    rotatedTetromino.shape_[i][2] = true;
             }
         }
         // 세로
         else
         {
             // 2번째 ~ "xOxxxOxxxOxxxOxx"
-            if (shape_[0][1] == true)
+            if (rotatedTetromino.shape_[0][1] == true)
             {
                 for (int i = 0; i < 4; i++)
-                    shape_[i][1] = false;
+                    rotatedTetromino.shape_[i][1] = false;
                 for (int i = 0; i < 4; i++)
-                    shape_[2][i] = true;
+                    rotatedTetromino.shape_[2][i] = true;
             }
             else
             {
                 for (int i = 0; i < 4; i++)
-                    shape_[i][2] = false;
+                    rotatedTetromino.shape_[i][2] = false;
                 for (int i = 0; i < 4; i++)
-                    shape_[1][i] = true;
+                    rotatedTetromino.shape_[1][i] = true;
             }
         }
     }
+    return rotatedTetromino;
 }
 
 // 화면의 x, y 위치에 s 문자열로  테트로미노를 그린다

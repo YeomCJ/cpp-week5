@@ -3,6 +3,8 @@
 #define GAME_H
 
 #include "tetromino.h"
+#include "vector"
+#include "iostream"
 
 #define BOARD_WIDTH 10
 #define BOARD_HEIGHT 20
@@ -22,12 +24,12 @@ private:
 
   int moveTimer = DROP_DELAY;
 
-  Tetromino *currentTetromino;
-  Tetromino *nextTetromino;
-  Tetromino *holdTetromino;
+  Tetromino currentTetromino = Tetromino::T;
+  Tetromino nextTetromino = Tetromino::T;
+  Tetromino holdTetromino = Tetromino::T;
 
-  Tetromino *ar[7];
-  Tetromino *nar[7];
+  Tetromino ar[7] = {Tetromino::I,Tetromino::O,Tetromino::T,
+                    Tetromino::S,Tetromino::Z,Tetromino::J,Tetromino::L};
 
   bool leftWall();
   bool rightWall();
