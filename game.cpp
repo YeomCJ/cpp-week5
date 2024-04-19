@@ -166,10 +166,53 @@ void Game::update()
   else if (console::key(Key::K_Z)) // 반시계 회전
   {
     currentTetromino->rotatedCCW();
+    if (!leftWall())
+    {
+      currentTetromino->rotatedCCW();
+      for (int j = 0; j < s; j++)
+        if (currentTetromino->check(0, j))
+        {
+          currentTetromino->rotatedCW();
+          break;
+        }
+    }
+    else if (!rightWall())
+    {
+      currentTetromino->rotatedCCW();
+      for (int j = 0; j < s; j++)
+        if (currentTetromino->check(s - 1, j))
+        {
+          currentTetromino->rotatedCW();
+          break;
+        }
+    }
+    else
+      currentTetromino->rotatedCCW();
   }
   else if (console::key(Key::K_X)) // 시계 회전
   {
-    currentTetromino->rotatedCW();
+    if (!leftWall())
+    {
+      currentTetromino->rotatedCW();
+      for (int j = 0; j < s; j++)
+        if (currentTetromino->check(0, j))
+        {
+          currentTetromino->rotatedCCW();
+          break;
+        }
+    }
+    else if (!rightWall())
+    {
+      currentTetromino->rotatedCW();
+      for (int j = 0; j < s; j++)
+        if (currentTetromino->check(s - 1, j))
+        {
+          currentTetromino->rotatedCCW();
+          break;
+        }
+    }
+    else
+      currentTetromino->rotatedCW();
   }
 
   // 프레임 속도 맞추기
