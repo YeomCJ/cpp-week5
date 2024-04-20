@@ -34,8 +34,10 @@ private:
   bool leftWall();
   bool rightWall();
   bool floorWall();
+  
+  int underBlock();
 
-  void lockPiece();
+  void drawShadow();
 
 public:
   // 게임의 한 프레임을 처리한다.
