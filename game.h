@@ -3,8 +3,10 @@
 #define GAME_H
 
 #include "tetromino.h"
-#include "vector"
 #include "iostream"
+#include <chrono>
+#include <sstream>
+#include <iomanip>
 
 #define BOARD_WIDTH 10
 #define BOARD_HEIGHT 20
@@ -24,6 +26,8 @@ private:
 
   int moveTimer = DROP_DELAY;
 
+  std::chrono::steady_clock::time_point startTime_ = std::chrono::steady_clock::now(); // 게임 시작 시간
+
   Tetromino currentTetromino = Tetromino::T;
   Tetromino nextTetromino = Tetromino::T;
   Tetromino holdTetromino = Tetromino::T;
@@ -38,6 +42,8 @@ private:
   int underBlock();
 
   void drawShadow();
+
+  std::string formatPlayTime();
 
 public:
   // 게임의 한 프레임을 처리한다.

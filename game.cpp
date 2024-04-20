@@ -3,7 +3,6 @@
 #include <iostream>
 #include <random>
 #include <string>
-#include <chrono>
 
 using namespace console;
 
@@ -25,6 +24,7 @@ bool Game::leftWall()
       if (x == -1)
         return false;
   }
+  
   return true;
 }
 
@@ -86,11 +86,12 @@ int Game::underBlock() // up, shadow
     {
       if (currentTetromino.check(i, j))
       {
-        for (int k = 0; k < 20; k++)
-          if (board_[x + j - 1][k]) {
-            if (k - i <= minDistance)
-              minDistance =  k - i;
-              
+        for (int k = 19; k >= y; k--)
+          if (board_[x + j - 1][k])
+          {
+            if (k - i <= minDistance) {
+              minDistance = k - i;
+            }
           }
       }
     }
@@ -101,8 +102,9 @@ int Game::underBlock() // up, shadow
     for (int j = 0; j < s; j++)
 
       if (currentTetromino.check(s - 1, j))
-      { 
-        if (minDistance < 18) return minDistance;
+      {
+        if (minDistance < 18)
+          return minDistance;
         return 18;
       }
   }
@@ -112,12 +114,14 @@ int Game::underBlock() // up, shadow
     {
       if (currentTetromino.check(s - 1, j))
       {
-        if (minDistance < 17) return minDistance;
+        if (minDistance < 17)
+          return minDistance;
         return 17;
       }
       if (currentTetromino.check(s - 2, j))
       {
-        if (minDistance < 16) return minDistance;
+        if (minDistance < 16)
+          return minDistance;
         return 16;
       }
     }
@@ -251,7 +255,7 @@ void Game::update()
             for (int l = 0; l < s; l++)
               if (currentTetromino.check(k, l))
                 board_[x + l - 1][y + k - 1] = true;
-          
+
           currentTetromino = nextTetromino;
           nextTetromino = ar[rand() % 7];
           x = 4;
@@ -262,7 +266,8 @@ void Game::update()
         }
       }
     }
-    if (z != 0) break;
+    if (z != 0)
+      break;
   }
 
   // 바닥에 쌓기
@@ -326,23 +331,28 @@ void Game::drawShadow()
   }
 }
 
+std::string Game::formatPlayTime()//플레이타임 계산
+{
+    auto currentTime = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime_);
+
+    int minutes = std::chrono::duration_cast<std::chrono::minutes>(duration).count() % 60;
+    int seconds = std::chrono::duration_cast<std::chrono::seconds>(duration).count() % 60;
+    int milliseconds = duration.count() % 1000;
+
+    std::ostringstream oss;
+    oss << std::setfill('0') << std::setw(2) << minutes << ":"//분
+        << std::setfill('0') << std::setw(2) << seconds << "."//초
+        << std::setfill('0') << std::setw(2) << milliseconds / 10;
+
+    return oss.str();
+}
 // 게임 화면을 그린다.
 void Game::draw()
 {
   int s = currentTetromino.size();
   // 시간 출력
-  static auto lastTime = std::chrono::steady_clock::now();
-  auto currentTime = std::chrono::steady_clock::now();
-
-  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastTime);
-  auto minutes = std::chrono::duration_cast<std::chrono::minutes>(duration);
-  duration -= minutes;
-  auto seconds = std::chrono::duration_cast<std::chrono::seconds>(duration);
-  duration -= seconds;
-  auto milliseconds = duration;
-  console::draw(3, 23, std::to_string(minutes.count()) + ":" + std::to_string(seconds.count()) + ":" + std::to_string(milliseconds.count()));
-  lastTime = currentTime;
-  //
+  console::draw(2,23,formatPlayTime());
 
   console::drawBox(0, 0, 11, 21);
   console::drawBox(12, 0, 17, 6);
@@ -368,12 +378,13 @@ void Game::draw()
   if (score == 0)
   {
     console::draw(2, 10, "You Win");
-    console::draw(3, 11, std::to_string(minutes.count()) + ":" + std::to_string(seconds.count()) + ":" + std::to_string(milliseconds.count()));
+    console::draw(2,11,formatPlayTime());
     return;
   }
-  
-  if (board_[4][1] || board_[5][1]) {
-    console::draw(2,10,"You Lost");
+
+  if (board_[4][1] || board_[5][1])
+  {
+    console::draw(2, 10, "You Lost");
     return;
   }
 }
@@ -381,10 +392,11 @@ void Game::draw()
 // 게임 루프가 종료되어야 하는지 여부를 반환한다.
 bool Game::shouldExit()
 {
-  if (board_[4][1] || board_[5][1]) {
-    
+  if (board_[4][1] || board_[5][1])
+  {
+
     return true;
-    }
+  }
   if (score == 0)
   {
     return true;
