@@ -23,6 +23,7 @@ private:
   int score;
   int x,y;
   int check = 0;
+  int rtz = 0, rtx = 0;
 
   int moveTimer = DROP_DELAY;
 
@@ -38,7 +39,9 @@ private:
   bool leftWall();
   bool rightWall();
   bool floorWall();
-  
+  bool leftBlock();
+  bool rightBlock();
+
   int underBlock();
 
   void drawShadow();

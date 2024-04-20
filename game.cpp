@@ -6,7 +6,6 @@
 
 using namespace console;
 
-// 벽에서 회전했을 때 오류
 bool Game::leftWall()
 {
   int s = currentTetromino.size();
@@ -24,7 +23,7 @@ bool Game::leftWall()
       if (x == -1)
         return false;
   }
-  
+
   return true;
 }
 
@@ -42,7 +41,7 @@ bool Game::rightWall()
         return false;
 
     if (currentTetromino.check(j, s - 3)) // I 블록
-      if (x + s == 13)
+      if (x + s == 13 || x + s == 14)
         return false;
   }
   return true;
@@ -89,7 +88,8 @@ int Game::underBlock() // up, shadow
         for (int k = 19; k >= y; k--)
           if (board_[x + j - 1][k])
           {
-            if (k - i <= minDistance) {
+            if (k - i <= minDistance)
+            {
               minDistance = k - i;
             }
           }
@@ -120,13 +120,67 @@ int Game::underBlock() // up, shadow
       }
       if (currentTetromino.check(s - 2, j))
       {
-        if (minDistance < 16)
+        if (minDistance < 18)
           return minDistance;
-        return 16;
+        return 18;
+      }
+      if (currentTetromino.check(s - 3, j))
+      {
+        if (minDistance < 19)
+          return minDistance;
+        return 19;
       }
     }
   }
   return minDistance;
+}
+
+bool Game::leftBlock()
+{
+  int s = currentTetromino.size();
+  for (int i = 0; i < s; i++)
+  {
+    if (currentTetromino.check(i, 0))
+      if (board_[x - 2][y + i])
+        return false;
+  }
+  for (int i = 0; i < s; i++)
+  {
+    if (currentTetromino.check(i, 1))
+      if (board_[x - 1][y + i])
+        return false;
+  }
+  for (int i = 0; i < s; i++)
+  {
+    if (currentTetromino.check(i, 2))
+      if (board_[x][y + i])
+        return false;
+  }
+  return true;
+}
+
+bool Game::rightBlock()
+{
+  int s = currentTetromino.size();
+  for (int i = 0; i < s; i++)
+  {
+    if (currentTetromino.check(i, s - 1))
+      if (board_[x + s - 1][y + i])
+        return false;
+  }
+  for (int i = 0; i < s; i++)
+  {
+    if (currentTetromino.check(i, s - 2))
+      if (board_[x + s - 2][y + i])
+        return false;
+  }
+  for (int i = 0; i < s; i++)
+  {
+    if (currentTetromino.check(i, s - 3))
+      if (board_[x + s - 3][y + i])
+        return false;
+  }
+  return true;
 }
 
 // 게임의 한 프레임을 처리
@@ -147,12 +201,14 @@ void Game::update()
   else if (console::key(Key::K_LEFT))
   {
     if (leftWall())
-      x--;
+      if (leftBlock())
+        x--;
   }
   else if (console::key(Key::K_RIGHT))
   {
     if (rightWall())
-      x++;
+      if (rightBlock())
+        x++;
   }
 
   else if (console::key(Key::K_ESC)) // 종료
@@ -166,6 +222,13 @@ void Game::update()
     {
       if (holdTetromino.size() == 0)
       {
+        if (rtz >= rtx)
+          for (int i = 0; i < rtz - rtx; i++)
+            currentTetromino = currentTetromino.rotatedCW();
+        else
+          for (int i = 0; i < rtx - rtz; i++)
+            currentTetromino = currentTetromino.rotatedCCW();
+
         holdTetromino = currentTetromino;
         currentTetromino = nextTetromino;
         nextTetromino = ar[rand() % 7];
@@ -173,64 +236,185 @@ void Game::update()
       else
       {
         Tetromino tmp = holdTetromino;
+        if (rtz >= rtx)
+          for (int i = 0; i < rtz - rtx; i++)
+            currentTetromino = currentTetromino.rotatedCW();
+        else
+          for (int i = 0; i < rtx - rtz; i++)
+            currentTetromino = currentTetromino.rotatedCCW();
         holdTetromino = currentTetromino;
         currentTetromino = tmp;
       }
       x = 4;
       y = 1;
       check++;
+      rtz = 0;
+      rtx = 0;
     }
   }
+
   else if (console::key(Key::K_Z)) // 반시계 회전
   {
-
+    int ch = 0;
     if (!leftWall())
     {
-      currentTetromino = currentTetromino.rotatedCCW();
       for (int j = 0; j < s; j++)
-        if (currentTetromino.check(0, j))
+        if (currentTetromino.check(j, 0))
         {
-          currentTetromino = currentTetromino.rotatedCW();
+          currentTetromino = currentTetromino.rotatedCCW();
+          rtz++;
           break;
         }
     }
     else if (!rightWall())
     {
-      currentTetromino = currentTetromino.rotatedCCW();
       for (int j = 0; j < s; j++)
-        if (currentTetromino.check(s - 1, j))
+        if (currentTetromino.check(j, s - 1))
         {
-          currentTetromino = currentTetromino.rotatedCW();
+          currentTetromino = currentTetromino.rotatedCCW();
+          rtz++;
           break;
         }
     }
+    else if (s == 4 && x == 0)
+    {
+      if (!currentTetromino.check(0, 2))
+        ch++;
+    }
+    else if (x == 8 && s == 4)
+    {
+      if (!currentTetromino.check(0, 1))
+        ch++;
+    }
+    else if (s == 4 && y >= 17)
+      ;
+    else if (!leftBlock())
+    {
+      if (s == 4)
+      {
+        if (!currentTetromino.check(0, 1))
+          ch++;
+      }
+      else
+        for (int j = 0; j < s; j++)
+          if (currentTetromino.check(j, 0))
+          {
+            currentTetromino = currentTetromino.rotatedCCW();
+            rtz++;
+            break;
+          }
+    }
+    else if (!rightBlock())
+    {
+      if (s == 4)
+      {
+        if (!currentTetromino.check(0, 2))
+          ch++;
+      }
+      else
+        for (int j = 0; j < s; j++)
+          if (currentTetromino.check(j, s - 1))
+          {
+            currentTetromino = currentTetromino.rotatedCCW();
+            rtz++;
+            break;
+          }
+    }
+    else if (s == 4 && board_[x - 2][y -1])
+    {
+      if (!currentTetromino.check(0, 2))
+        ch++;
+    }
     else
+    {
       currentTetromino = currentTetromino.rotatedCCW();
+      rtz++;
+    }
+    if (ch == 1)
+    {
+      currentTetromino = currentTetromino.rotatedCCW();
+      rtz++;
+    }
   }
+
   else if (console::key(Key::K_X)) // 시계 회전
   {
+    int ch = 0;
     if (!leftWall())
     {
-      currentTetromino = currentTetromino.rotatedCW();
       for (int j = 0; j < s; j++)
-        if (currentTetromino.check(0, j))
+        if (currentTetromino.check(j, 0))
         {
-          currentTetromino = currentTetromino.rotatedCCW();
+          currentTetromino = currentTetromino.rotatedCW();
+          rtx++;
           break;
         }
     }
     else if (!rightWall())
     {
-      currentTetromino = currentTetromino.rotatedCW();
       for (int j = 0; j < s; j++)
-        if (currentTetromino.check(s - 1, j))
+        if (currentTetromino.check(j, s - 1))
         {
-          currentTetromino = currentTetromino.rotatedCCW();
+          currentTetromino = currentTetromino.rotatedCW();
+          rtx++;
           break;
         }
     }
+    else if (s == 4 && x == 0)
+    {
+      if (!currentTetromino.check(0, 2))
+        ch++;
+    }
+    else if (x == 8 && s == 4)
+    {
+      if (!currentTetromino.check(0, 1))
+        ch++;
+    }
+    else if (s == 4 && y >= 17)
+      ;
+    else if (!leftBlock())
+    {
+      if (s == 4)
+      {
+        if (!currentTetromino.check(0, 1))
+          ch++;
+      }
+      else
+        for (int j = 0; j < s; j++)
+          if (currentTetromino.check(j, 0))
+          {
+            currentTetromino = currentTetromino.rotatedCW();
+            rtx++;
+            break;
+          }
+    }
+    else if (!rightBlock())
+    {
+      if (s == 4)
+      {
+        if (!currentTetromino.check(0, 2))
+          ch++;
+      }
+      else
+        for (int j = 0; j < s; j++)
+          if (currentTetromino.check(j, s - 1))
+          {
+            currentTetromino = currentTetromino.rotatedCW();
+            rtx++;
+            break;
+          }
+    }
+
     else
+    {
       currentTetromino = currentTetromino.rotatedCW();
+      rtx++;
+    }
+    if (ch == 1)
+    {
+      currentTetromino = currentTetromino.rotatedCW();
+      rtx++;
+    }
   }
 
   // 프레임 속도 맞추기
@@ -331,28 +515,28 @@ void Game::drawShadow()
   }
 }
 
-std::string Game::formatPlayTime()//플레이타임 계산
+std::string Game::formatPlayTime() // 플레이타임 계산
 {
-    auto currentTime = std::chrono::steady_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime_);
+  auto currentTime = std::chrono::steady_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime_);
 
-    int minutes = std::chrono::duration_cast<std::chrono::minutes>(duration).count() % 60;
-    int seconds = std::chrono::duration_cast<std::chrono::seconds>(duration).count() % 60;
-    int milliseconds = duration.count() % 1000;
+  int minutes = std::chrono::duration_cast<std::chrono::minutes>(duration).count() % 60;
+  int seconds = std::chrono::duration_cast<std::chrono::seconds>(duration).count() % 60;
+  int milliseconds = duration.count() % 1000;
 
-    std::ostringstream oss;
-    oss << std::setfill('0') << std::setw(2) << minutes << ":"//분
-        << std::setfill('0') << std::setw(2) << seconds << "."//초
-        << std::setfill('0') << std::setw(2) << milliseconds / 10;
+  std::ostringstream oss;
+  oss << std::setfill('0') << std::setw(2) << minutes << ":" // 분
+      << std::setfill('0') << std::setw(2) << seconds << "." // 초
+      << std::setfill('0') << std::setw(2) << milliseconds / 10;
 
-    return oss.str();
+  return oss.str();
 }
 // 게임 화면을 그린다.
 void Game::draw()
 {
   int s = currentTetromino.size();
   // 시간 출력
-  console::draw(2,23,formatPlayTime());
+  console::draw(2, 23, formatPlayTime());
 
   console::drawBox(0, 0, 11, 21);
   console::drawBox(12, 0, 17, 6);
@@ -378,7 +562,7 @@ void Game::draw()
   if (score == 0)
   {
     console::draw(2, 10, "You Win");
-    console::draw(2,11,formatPlayTime());
+    console::draw(2, 11, formatPlayTime());
     return;
   }
 
