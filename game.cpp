@@ -79,7 +79,7 @@ bool Game::floorWall()
 int Game::underBlock() // up, shadow
 {
   int s = currentTetromino.size();
-
+  int minDistance = 19;
   for (int i = s - 1; i >= 0; i--)
   {
     for (int j = 0; j < s; j++)
@@ -88,7 +88,9 @@ int Game::underBlock() // up, shadow
       {
         for (int k = 0; k < 20; k++)
           if (board_[x + j - 1][k]) {
-            return k - i;
+            if (k - i <= minDistance)
+              minDistance =  k - i;
+              
           }
       }
     }
@@ -99,7 +101,8 @@ int Game::underBlock() // up, shadow
     for (int j = 0; j < s; j++)
 
       if (currentTetromino.check(s - 1, j))
-      {
+      { 
+        if (minDistance < 18) return minDistance;
         return 18;
       }
   }
@@ -109,15 +112,17 @@ int Game::underBlock() // up, shadow
     {
       if (currentTetromino.check(s - 1, j))
       {
+        if (minDistance < 17) return minDistance;
         return 17;
       }
       if (currentTetromino.check(s - 2, j))
       {
+        if (minDistance < 16) return minDistance;
         return 16;
       }
     }
   }
-  return 19;
+  return minDistance;
 }
 
 // 게임의 한 프레임을 처리
