@@ -223,12 +223,17 @@ void Game::update()
       if (holdTetromino.size() == 0)
       {
         if (rtz >= rtx)
+        {
           for (int i = 0; i < rtz - rtx; i++)
+          {
             currentTetromino = currentTetromino.rotatedCW();
+          }
+        }
         else
+        {
           for (int i = 0; i < rtx - rtz; i++)
             currentTetromino = currentTetromino.rotatedCCW();
-
+        }
         holdTetromino = currentTetromino;
         currentTetromino = nextTetromino;
         nextTetromino = ar[rand() % 7];
@@ -319,11 +324,6 @@ void Game::update()
             rtz++;
             break;
           }
-    }
-    else if (s == 4 && board_[x - 2][y -1])
-    {
-      if (!currentTetromino.check(0, 2))
-        ch++;
     }
     else
     {
@@ -445,6 +445,8 @@ void Game::update()
           x = 4;
           y = 1;
           check = 0;
+          rtz = 0;
+          rtx = 0;
           z = -1;
           break;
         }
@@ -467,6 +469,8 @@ void Game::update()
     x = 4;
     y = 1;
     check = 0;
+    rtz = 0;
+    rtx = 0;
   }
 
   // 한 줄 채우면 ~
